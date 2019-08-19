@@ -1,0 +1,27 @@
+{
+  "name": "fantasy-football-slackbot",
+  "version": "1.0.0",
+  "description": "Slackbot for ESPN fantasy football",
+  "main": "main.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lbiv4/fantasy-football-slackbot.git"
+  },
+  "author": "Lane Barton IV",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lbiv4/fantasy-football-slackbot/issues"
+  },
+  "homepage": "https://github.com/lbiv4/fantasy-football-slackbot#readme",
+  "dependencies": {
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.7"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^6.2.0"
+  }
+}

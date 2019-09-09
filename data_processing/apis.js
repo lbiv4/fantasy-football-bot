@@ -1,5 +1,7 @@
 const config = require('../config/config.json');
 const axios = require('axios');
+const Owner = require('./team.js').Owner;
+const Team = require('./team.js').Team;
 
 /**
  * Method to create cookies based on passed in key-value pairs and league privacy
@@ -52,25 +54,69 @@ const slotIdToPos = (slotId) => {
 }
 
 /**
- * Method to get scoreboard information
- * @param {int} year 
- * @param {int?} scoringPeriod 
+ * Method to get owner information
+ * @param {int} year Year to look for owners
  */
-const get_scoreboard = async (year, scoringPeriod) => {
+const get_owners = async (year) => {
     const uri = `https://fantasy.espn.com/apis/v3/games/ffl/seasons/${year}/segments/0/leagues/454525`
-    //const views = ["modular", "mNav", "mMatchupScore", "mRoster", "mScoreboard", "mSettings", "mTopPerformers", "mTeam", "mPositionalRatings", "kona_player_info"];
-    const views = ["mScoredboard"]
+    const views = ["mTeam"]
     const data = {
         view: views.join(",")
     }
     const output = await get_data(uri, null, data);
-    const scoringPeriod = scoringPeriod || output.scoringPeriodId;
     if (!output) {
-        console.log("Cannot find data for year " + year)
+        console.log("Cannot find owner data for year " + year)
     } else {
-        console.log("Found data");
+        let owners = []
+        for(let i = 0; i < output.members.length; i++) {
+            owners.push(new Owner(output.members[i]));
+        }
+        //return owners;
     }
 }
 
-module.exports = {get_scoreboard}
+/**
+ * Method to get team information
+ * @param {int} year Year to look for teams
+ */
+const get_teams = async (year) => {
+    const uri = `https://fantasy.espn.com/apis/v3/games/ffl/seasons/${year}/segments/0/leagues/454525`
+    const views = ["mTeam"]
+    const data = {
+        view: views.join(",")
+    }
+    const output = await get_data(uri, null, data);
+    if (!output) {
+        console.log("Cannot find team data for year " + year)
+    } else {
+        let teams = []
+        for(let i = 0; i < output.teams.length; i++) {
+            teams.push(new Team(output.members, output.teams[i]));
+        }
+        console.log(teams);
+    }
+}
+
+/**
+ * Method to get scoreboard information
+ * @param {int} year Year of scoreboard
+ * @param {int?} week Optional parameter to indicate which week of the scoreboard to use. Defaults to current scoring period
+ */
+const get_scoreboard = async (year, week) => {
+    const uri = `https://fantasy.espn.com/apis/v3/games/ffl/seasons/${year}/segments/0/leagues/454525`
+    //const views = ["modular", "mNav", "mMatchupScore", "mRoster", "mScoreboard", "mSettings", "mTopPerformers", "mTeam", "mPositionalRatings", "kona_player_info"];
+    const views = ["mScoreboard"]
+    const data = {
+        view: views.join(",")
+    }
+    const output = await get_data(uri, null, data);
+    const scoringPeriod = week || output.scoringPeriodId;
+    if (!output) {
+        console.log("Cannot find data for year " + year)
+    } else {
+        console.log(output);
+    }
+}
+
+module.exports = {get_owners, get_teams, get_scoreboard}
 

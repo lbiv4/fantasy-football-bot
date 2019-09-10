@@ -33,6 +33,24 @@ class Team {
             return this.location + " " + this.nickname;
         }
     }
+
+    /**
+     * Method to take a search string parameter and see if it matches common team values, including owner names or
+     * team names
+     * 
+     * @param {string} input String to search for
+     * @returns {boolean} Boolean indicating if team matches input expression
+     */
+    is_search_match(input) {
+        //Check owner names
+        this.owners.forEach(owner => {
+            if(owner.fullName().match(new RegExp(input, i)).length > 0) {
+                return true;
+            }
+        })
+        //Check team name
+        return this.fullTeamName().match(new RegExp(input, i)).length > 0;
+    }
 }
 
 module.exports = {Owner, Team}

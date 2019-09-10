@@ -56,6 +56,7 @@ const slotIdToPos = (slotId) => {
 /**
  * Method to get owner information
  * @param {int} year Year to look for owners
+ * @returns {Owner[]} Returns an array of owners in the league
  */
 const get_owners = async (year) => {
     const uri = `https://fantasy.espn.com/apis/v3/games/ffl/seasons/${year}/segments/0/leagues/454525`
@@ -78,6 +79,7 @@ const get_owners = async (year) => {
 /**
  * Method to get team information
  * @param {int} year Year to look for teams
+ * @return {Team[]} Returns an array of teams in the league for the input year
  */
 const get_teams = async (year) => {
     const uri = `https://fantasy.espn.com/apis/v3/games/ffl/seasons/${year}/segments/0/leagues/454525`
@@ -100,7 +102,7 @@ const get_teams = async (year) => {
 /**
  * Method to get scoreboard information
  * @param {int} year Year of scoreboard
- * @param {int?} week Optional parameter to indicate which week of the scoreboard to use. Defaults to current scoring period
+ * @param {int=} week Optional parameter to indicate which week of the scoreboard to use. Defaults to current scoring period
  */
 const get_scoreboard = async (year, week) => {
     const uri = `https://fantasy.espn.com/apis/v3/games/ffl/seasons/${year}/segments/0/leagues/454525`

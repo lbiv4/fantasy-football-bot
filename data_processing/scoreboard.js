@@ -7,7 +7,7 @@ class Scoreboard {
      * 
      * @param {Array} teams Array of team data from API request 
      * @param {Array} schedule Array of schedule data from API request
-     * @param {int?} scoringPeriod Week of scoreboard to focus on. Defaults to all weeks
+     * @param {int=} scoringPeriod Week of scoreboard to focus on. Defaults to all weeks
      */
     constructor(teams, schedule, scoringPeriod) {
         this.teams = teams;
@@ -20,14 +20,25 @@ class Scoreboard {
         });
     }
 
+    /**
+     * 
+     * @param {(string|number)} team String or id 
+     */
     get_score(team) {
-        let team_id = 0;
+        let teamId = 0;
         if (typeof team === 'string') {
-            team_id = this.team.filter(t => {
-                return t.id == team;
-            }).id;
+            let matchingTeams = this.teams.filter(t => {
+                return t.is_search_match(team);
+            });
+            if(matchingTeams.length == 0) {
+                console.log("No team matches");
+            } else if (matchingTeams.length > 1) {
+                console.log("Multiple teams");
+            } else {
+                teamId = matchingTeams[0].id;
+            }
         } else if (typeof team === int) {
-            team_id = team;
+            teamId = team;
         } else {
             console.log("error - cannot identify team");
         }

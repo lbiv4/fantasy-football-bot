@@ -18,7 +18,6 @@ class Team {
         let teamOwners = owners.filter(o => {
             return team.owners.includes(o.id);
         });
-        console.log(teamOwners);
         teamOwners.forEach(element => {
             this.owners.push(new Owner(element));
         });
@@ -34,6 +33,22 @@ class Team {
         }
     }
 
+    get_owners() {
+        let output = "";
+        this.owners.forEach(owner => {
+            output += `,${owner.fullName()}`
+        });
+        return output.substring(1);
+    }
+
+    get_display_info() {
+        return {
+            teamName: this.fullTeamName(),
+            owners: this.get_owners(),
+            logo: this.logo
+        }
+    }
+
     /**
      * Method to take a search string parameter and see if it matches common team values, including owner names or
      * team names
@@ -43,13 +58,14 @@ class Team {
      */
     is_search_match(input) {
         //Check owner names
+        let result = false;
         this.owners.forEach(owner => {
-            if(owner.fullName().match(new RegExp(input, i)).length > 0) {
-                return true;
+            if(owner.fullName().match(new RegExp(input, 'i'))) {
+                result = true;
             }
         })
         //Check team name
-        return this.fullTeamName().match(new RegExp(input, i)).length > 0;
+        return result || this.fullTeamName().match(new RegExp(input, 'i')) !== null;
     }
 }
 

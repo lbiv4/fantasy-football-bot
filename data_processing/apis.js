@@ -109,7 +109,6 @@ const get_teams = async (year) => {
  */
 const get_scoreboard = async (year, week) => {
     const uri = `https://fantasy.espn.com/apis/v3/games/ffl/seasons/${year}/segments/0/leagues/454525`
-    //const views = ["modular", "mNav", "mMatchupScore", "mRoster", "mScoreboard", "mSettings", "mTopPerformers", "mTeam", "mPositionalRatings", "kona_player_info"];
     const views = ["mMatchupScore"]
     const data = {
         view: views.join(",")
@@ -125,5 +124,49 @@ const get_scoreboard = async (year, week) => {
     }
 }
 
-module.exports = {get_owners, get_teams, get_scoreboard}
+/**
+ * Method to get team information
+ * @param {int} year Year to look for teams
+ * @return {Promise<Team[]>} Returns an array of teams in the league for the input year
+ */
+const test = async (year) => {
+    const uri = `https://fantasy.espn.com/apis/v3/games/ffl/seasons/${year}/segments/0/leagues/454525`
+    //const views = ["modular", "mNav", "mMatchupScore", "mRoster", "mScoreboard", "mSettings", "mTopPerformers", "mTeam", "mPositionalRatings", "kona_player_info"];
+    const views = ["mScoreboard"]
+    const data = {
+        view: views.join(",")
+    }
+    const output = await get_data(uri, null, data);
+    if (!output) {
+        console.log("Cannot find team data for year " + year)
+        return null;
+    } else {
+        //keyTypes(output, views[0], 0)
+        return output
+    }
+}
+
+const keyTypes = (val, name, count) => {
+    const print = (name, type) => {
+        tabs = " ".repeat(count*4)
+        console.log(`${tabs}${name}: ${type}`)
+    }
+    if(val == null) {
+        return;
+    } else if(typeof val === 'object') {
+        if (Array.isArray(val)) {
+            print(name, 'array', count)
+            return keyTypes(val[0], 'ArrayObj', count+1)
+        } else {
+            print(name, 'object', count)
+            Object.getOwnPropertyNames(val).forEach(prop => {
+                keyTypes(val[prop], prop, count+1)
+            })
+        }
+    } else {
+        print(name, typeof val)
+    }
+}
+
+module.exports = {get_owners, get_teams, get_scoreboard, test}
 

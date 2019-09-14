@@ -30,11 +30,11 @@ class Scoreboard {
      * 
      * @param {(string|number)} team String or id to identify team to search for
      */
-    get_score_data(team) {
+    get_score_data(teamIdentifier) {
         let teamId = 0;
-        if (typeof team === 'string') {
+        if (typeof teamIdentifier === 'string') {
             let matchingTeams = this.teams.filter(t => {
-                return t.is_search_match(team);
+                return t.is_search_match(teamIdentifier);
             });
             if(matchingTeams.length == 0) {
                 console.log("No team matches");
@@ -43,8 +43,8 @@ class Scoreboard {
             } else {
                 teamId = matchingTeams[0].id;
             }
-        } else if (typeof team === 'number') {
-            teamId = team;
+        } else if (typeof teamIdentifier === 'number') {
+            teamId = teamIdentifier;
         } else {
             console.log("error - cannot identify team");
             return null;
@@ -55,18 +55,33 @@ class Scoreboard {
                 let team = this._get_team(teamId).get_display_info();
                 let oppId = matchup.away.teamId === teamId ? matchup.home.teamId : matchup.away.teamId;
                 let opp = this._get_team(oppId).get_display_info();
+                let homeScore = this._get_score_for_team(matchup.home);
+                let awayScore = this._get_score_for_team(matchup.away);
                 if(matchup.away.teamId === teamId)  {
-                    team['score'] = matchup.away.totalPoints;
-                    opp['score'] = matchup.home.totalPoints;
+                    team['score'] = awayScore;
+                    opp['score'] = homeScore;
                 } else if (matchup.home.teamId === teamId) {
-                    team['score'] = matchup.home.totalPoints;
-                    opp['score'] = matchup.away.totalPoints;
+                    team['score'] = homeScore;
+                    opp['score'] = awayScore;
                 }
                 output.push(team)
                 output.push(opp)
             }
         });
         return output;
+    }
+
+    /**
+     * Helper function to get the score for a team in a matchup 
+     * @param {Object} team Object corresponding to the home/away property of element in schedule (e.g. this.schedule[i].away)
+     * @return Number representing score for input team
+     */
+    _get_score_for_team(team) {
+        if(team.rosterForCurrentScoringPeriod === undefined) {
+            return team.totalPoints;
+        } else {
+            return team.rosterForCurrentScoringPeriod.appliedStatTotal.toFixed(1);
+        }
     }
 }
 

@@ -1,4 +1,4 @@
-
+const Roster = require('./players.js').Roster
 
 class Owner {
     constructor(data) {

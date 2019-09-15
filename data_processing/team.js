@@ -1,6 +1,17 @@
 const Roster = require('./players.js').Roster
 
+/** 
+ * A class representing an owner of a team
+ * @class 
+ */
 class Owner {
+    /**
+     * @constructor
+     * @param {object} data Data from the `members` property of the  `mTeam` API response
+     * @property {int} league_id LeagueId
+     * @property {string} firstName First name of the owner
+     * @property {string} lastName Last name of the owner
+     */
     constructor(data) {
         this.league_id = data.id;
         this.firstName = data.firstName;
@@ -11,7 +22,18 @@ class Owner {
     }
 }
 
+/** 
+ * A class representing a team, including any Owners and team properties
+ * @class 
+ */
 class Team {
+    /**
+     * @constructor
+     * @param {object} data Data from the `members` property of the  `mTeam` API response
+     * @param {object} team Data from an element of the `teams` array of the `mTeam` API response
+     * @property {Owner[]} owners Array of Owner class objects
+     * Note that there are additonal properties from the `team` parameter that are added. Will fill in later
+     */
     constructor(owners, team) {
         //Add owners
         this.owners = [];
@@ -33,18 +55,28 @@ class Team {
         }
     }
 
-    get_owners() {
-        let output = "";
+    /**
+     * Method to get the names of all owners for this team
+     * 
+     * @returns {string} String corresponding to comma separated list of owner names
+     */
+    get_owner_names() {
+        let output = []
         this.owners.forEach(owner => {
-            output += `,${owner.fullName()}`
+            output.add(owner.fullName());
         });
-        return output.substring(1);
+        return output.join(",");
     }
 
+    /**
+     * Method to get various useful information for display
+     * 
+     * @returns {object} Object containing properties including team name, owner names, and url of team logo
+     */
     get_display_info() {
         return {
             teamName: this.fullTeamName(),
-            owners: this.get_owners(),
+            owners: this.get_owner_names(),
             logo: this.logo
         }
     }

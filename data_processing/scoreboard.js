@@ -1,12 +1,16 @@
 
-
+/** 
+ * A class representing scores for the league
+ * @class 
+ */
 class Scoreboard {
     /**
-     * Constructor 
-     * 
+     * @constructor 
      * @param {Team[]} teams Array of team data from API request 
      * @param {object[]} schedule Array of schedule data from API request
      * @param {int=} scoringPeriod Week of scoreboard to focus on. Defaults to all weeks
+     * @property {Team[]} teams Array of Team objects
+     * @property {object[]} schedule Array of matchup data, filtered on the `scoringPeriod` parameter is it exists 
      */
     constructor(teams, schedule, scoringPeriod) {
         this.teams = teams;
@@ -19,6 +23,11 @@ class Scoreboard {
         });
     }
 
+    /**
+     * Helper method to get a Team object by an ide
+     * @param {int} id 
+     * @returns {Team} Team object corresponding to the input id
+     */
     _get_team(id) {
         return this.teams.filter(t => {
             return t.id === id

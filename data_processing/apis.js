@@ -21,6 +21,12 @@ const get_cookies = (keyValuePairs) => {
     return output;
 }
 
+/**
+ * Helper method to run any API call and produce the response data
+ * @param {*} url URL for the request
+ * @param {*} headers Headers for the request
+ * @param {*} params Query parameters for the request
+ */
 async function get_data(url, headers, params) {
     const options = {
         method: 'get',
@@ -39,6 +45,11 @@ async function get_data(url, headers, params) {
         })
 }
 
+/**
+ * Helper function to map ESPN's int values for position slots to their string representation
+ * @param {int} slotId 
+ * @returns {string} String representation of the input slot id
+ */
 const slotIdToPos = (slotId) => {
     const map = {
         0: "QB",
@@ -124,11 +135,7 @@ const get_scoreboard = async (year, week) => {
     }
 }
 
-/**
- * Method to get team information
- * @param {int} year Year to look for teams
- * @return {Promise<Team[]>} Returns an array of teams in the league for the input year
- */
+//Test method not for use
 const test = async (year) => {
     const uri = `https://fantasy.espn.com/apis/v3/games/ffl/seasons/${year}/segments/0/leagues/454525`
     //const views = ["modular", "mNav", "mMatchupScore", "mRoster", "mScoreboard", "mSettings", "mTopPerformers", "mTeam", "mPositionalRatings", "kona_player_info"];
@@ -146,6 +153,7 @@ const test = async (year) => {
     }
 }
 
+//Test method not for use
 const keyTypes = (val, name, count) => {
     const print = (name, type) => {
         tabs = " ".repeat(count*4)

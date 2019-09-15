@@ -3,7 +3,7 @@ const config = require('../config/config.json');
 const api = require('../data_processing/apis.js');
 // Configure logger settings
 
-
+// Hello World!
 const bot = new Discord.Client();
 bot.on('ready', function (evt) {
     console.log('Ready')

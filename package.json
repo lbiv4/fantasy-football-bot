@@ -17,7 +17,8 @@
   },
   "homepage": "https://github.com/lbiv4/fantasy-football-slackbot#readme",
   "dependencies": {
-    "axios": "^0.19.0"
+    "axios": "^0.19.0",
+    "discord.js": "^11.5.1"
   },
   "devDependencies": {
     "chai": "^4.2.0",

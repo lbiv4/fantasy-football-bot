@@ -32,7 +32,7 @@ If contributing to this project, please adhere to the following best practices.
 
 ### Code Documentation
 
-Use [JSDoc stdocumentationyle](https://devdocs.io/jsdoc/) for all major [methods and classes](https://devhints.io/jsdoc). 
+Use [JSDoc style](https://devdocs.io/jsdoc/) documentation for all major [methods and classes](https://devhints.io/jsdoc). 
 
 ### Unit testing
 

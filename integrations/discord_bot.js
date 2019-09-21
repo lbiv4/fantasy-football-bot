@@ -49,7 +49,7 @@ bot.on('message', msg => {
             }
             console.log(`${week} ${typeof week}`)
             console.log(`${searchTerm} ${typeof searchTerm}`)
-            api.get_scoreboard(2019, week)
+            api.get_fantasy_scoreboard(2019, week)
                 .then(sb => {
                     let data = sb.get_score_data(searchTerm)
                     let winningUrl = data[0].score == data[1].score ? "" : data[0].score > data[1].score ? data[0].logo : data[1].logo

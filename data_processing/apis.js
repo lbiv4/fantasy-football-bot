@@ -2,7 +2,8 @@ const config = require('../config/config.json');
 const axios = require('axios');
 const Owner = require('./team.js').Owner;
 const Team = require('./team.js').Team;
-const Scoreboard = require('./scoreboard.js').Scoreboard;
+const FantasyScoreboard = require('./scoreboard.js').FantasyScoreboard;
+const NFLTeams = require('./scoreboard.js').NFLTeams;
 
 /**
  * Method to create cookies based on passed in key-value pairs and league privacy
@@ -71,12 +72,13 @@ const slotIdToPos = (slotId) => {
  * @returns {Promise<Owner[]>} Returns an array of owners in the league
  */
 const get_owners = async (year) => {
-    const uri = `https://fantasy.espn.com/apis/v3/games/ffl/seasons/${year}/segments/0/leagues/454525`
+    const uri = `https://fantasy.espn.com/apis/v3/games/ffl/seasons/${year}/segments/0/leagues/${config.league_id}`
     const views = ["mTeam"]
     const data = {
         view: views.join(",")
     }
     const output = await get_data(uri, null, data);
+    console.log(output)
     if (!output) {
         console.log("Cannot find owner data for year " + year)
         return null
@@ -95,7 +97,7 @@ const get_owners = async (year) => {
  * @return {Promise<Team[]>} Returns an array of teams in the league for the input year
  */
 const get_teams = async (year) => {
-    const uri = `https://fantasy.espn.com/apis/v3/games/ffl/seasons/${year}/segments/0/leagues/454525`
+    const uri = `https://fantasy.espn.com/apis/v3/games/ffl/seasons/${year}/segments/0/leagues/${config.league_id}`
     const views = ["mTeam"]
     const data = {
         view: views.join(",")
@@ -114,12 +116,12 @@ const get_teams = async (year) => {
 }
 
 /**
- * Method to get scoreboard information
+ * Method to get fantasy scoreboard information
  * @param {int} year Year of scoreboard
  * @param {int=} week Optional parameter to indicate which week of the scoreboard to use. Defaults to current scoring period
  */
-const get_scoreboard = async (year, week) => {
-    const uri = `https://fantasy.espn.com/apis/v3/games/ffl/seasons/${year}/segments/0/leagues/454525`
+const get_fantasy_scoreboard = async (year, week) => {
+    const uri = `https://fantasy.espn.com/apis/v3/games/ffl/seasons/${year}/segments/0/leagues/${config.league_id}`
     const views = ["mMatchupScore"]
     const data = {
         view: views.join(",")
@@ -131,15 +133,33 @@ const get_scoreboard = async (year, week) => {
         return null;
     } else {
         const teams = await get_teams(year);
-        return new Scoreboard(teams, output.schedule, scoringPeriod);
+        return new FantasyScoreboard(teams, output.schedule, scoringPeriod);
+    }
+}
+
+/**
+ * Method to get NFL team information for a given year
+ */
+const get_nfl_teams = async (year) => {
+    const uri = `https://fantasy.espn.com/apis/v3/games/ffl/seasons/${year}`
+    const views = ["proTeamSchedules_wl"]
+    const data = {
+        view: views.join(",")
+    }
+    const output = await get_data(uri, null, data);
+    if (!output) {
+        console.log("Cannot find NFL scoreboard for date " + new Date())
+        return null;
+    } else {
+        return new NFLTeams(output.settings);
     }
 }
 
 //Test method not for use
 const test = async (year) => {
-    const uri = `https://fantasy.espn.com/apis/v3/games/ffl/seasons/${year}/segments/0/leagues/454525`
-    //const views = ["modular", "mNav", "mMatchupScore", "mRoster", "mScoreboard", "mSettings", "mTopPerformers", "mTeam", "mPositionalRatings", "kona_player_info"];
-    const views = ["mScoreboard"]
+    const uri = `https://fantasy.espn.com/apis/v3/games/ffl/seasons/${year}/segments/0/leagues/${config.league_id}`
+    //const views = ["modular", "mNav", "mMatchupScore", "mRoster", "mScoreboard", "mSettings", "mTopPerformers", "mTeam", "mPositionalRatings", "kona_player_info", "proTeamSchedules_wl"];
+    const views = ["mRoster"]
     const data = {
         view: views.join(",")
     }
@@ -176,5 +196,5 @@ const keyTypes = (val, name, count) => {
     }
 }
 
-module.exports = {get_owners, get_teams, get_scoreboard, test}
+module.exports = {get_owners, get_teams, get_fantasy_scoreboard, get_nfl_teams, test}
 

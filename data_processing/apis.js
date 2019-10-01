@@ -4,6 +4,8 @@ const Owner = require('./team.js').Owner;
 const Team = require('./team.js').Team;
 const FantasyScoreboard = require('./scoreboard.js').FantasyScoreboard;
 const NFLTeams = require('./scoreboard.js').NFLTeams;
+const Roster = require('./players.js').Roster;
+
 
 /**
  * Method to create cookies based on passed in key-value pairs and league privacy
@@ -67,6 +69,26 @@ const slotIdToPos = (slotId) => {
 }
 
 /**
+ * Method to get week of current year
+ * @param {int} year Year to look for current week
+ * @returns {Promise<number>} Returns an integer value corresponding to current scoring period
+ */
+const get_scoring_period = async (year) => {
+    const uri = `https://fantasy.espn.com/apis/v3/games/ffl/seasons/${year}/segments/0/leagues/${config.league_id}`
+    const views = ["mTeam"]
+    const data = {
+        view: views.join(",")
+    }
+    const output = await get_data(uri, null, data);
+    if (!output) {
+        console.log("Cannot find data for year " + year)
+        return null
+    } else {
+        return output.scoringPeriodId;
+    }
+}
+
+/**
  * Method to get owner information
  * @param {int} year Year to look for owners
  * @returns {Promise<Owner[]>} Returns an array of owners in the league
@@ -78,7 +100,6 @@ const get_owners = async (year) => {
         view: views.join(",")
     }
     const output = await get_data(uri, null, data);
-    console.log(output)
     if (!output) {
         console.log("Cannot find owner data for year " + year)
         return null
@@ -88,6 +109,30 @@ const get_owners = async (year) => {
             owners.push(new Owner(output.members[i]));
         }
         return owners;
+    }
+}
+
+/**
+ * Method to get team rosters
+ * @param {int} year Year to look for teams
+ * @return {Promise<Team[]>} Returns an array of Rosters in the league for the input year
+ */
+const get_rosters = async (year) => {
+    const uri = `https://fantasy.espn.com/apis/v3/games/ffl/seasons/${year}/segments/0/leagues/${config.league_id}`
+    const views = ["mRoster"]
+    const data = {
+        view: views.join(",")
+    }
+    const output = await get_data(uri, null, data);
+    if (!output) {
+        console.log("Cannot find roster data for year " + year)
+        return null;
+    } else {
+        let rosters = []
+        for(let i = 0; i < output.teams.length; i++) {
+            rosters.push(new Roster(output.teams[i].id, output.teams[i].roster));
+        }
+        return rosters;
     }
 }
 
@@ -107,9 +152,10 @@ const get_teams = async (year) => {
         console.log("Cannot find team data for year " + year)
         return null;
     } else {
+        const rosters = await get_rosters(year);
         let teams = []
         for(let i = 0; i < output.teams.length; i++) {
-            teams.push(new Team(output.members, output.teams[i]));
+            teams.push(new Team(output.members, rosters[i], output.teams[i]));
         }
         return teams;
     }
@@ -155,11 +201,41 @@ const get_nfl_teams = async (year) => {
     }
 }
 
+/**
+ * Method to get all 'inactive' (injured (questionable or worse) and on bye week players) starters for all fantasy teams
+ * Note that a player may actually be active by game time - accounts for questionable or doubtful starters who may become inactive
+ * @param {number} year 
+ * @param {number} week 
+ * @returns Object containing a `team` parameter corresponding to a `Team` class object and an `inactivePlayers`
+ *          parameter corresponding to an array of inactive starters
+ */
+const get_inactive_starters = async (year, week) => {
+    const fantasyTeams = await get_teams(year);
+    const nflTeams = await get_nfl_teams(year);
+    let output = [];
+    fantasyTeams.forEach(fTeam => {
+        let injuredOrBye = fTeam.roster.players.filter(plr => {
+            let onBye = false;
+            let playerTeam = nflTeams.get_team_by_player(plr);
+            if(playerTeam !== null) {
+                onBye = playerTeam.byeWeek === week;
+            }
+            return plr.is_starter() && (plr.is_injured() || onBye);
+        })
+        if(injuredOrBye.length > 0) {
+            output.push({team: fTeam, inactivePlayers: injuredOrBye});
+        }
+    })
+    return output;
+}
+
+
+
 //Test method not for use
 const test = async (year) => {
     const uri = `https://fantasy.espn.com/apis/v3/games/ffl/seasons/${year}/segments/0/leagues/${config.league_id}`
     //const views = ["modular", "mNav", "mMatchupScore", "mRoster", "mScoreboard", "mSettings", "mTopPerformers", "mTeam", "mPositionalRatings", "kona_player_info", "proTeamSchedules_wl"];
-    const views = ["mRoster"]
+    const views = ["mTeam"]
     const data = {
         view: views.join(",")
     }
@@ -196,5 +272,5 @@ const keyTypes = (val, name, count) => {
     }
 }
 
-module.exports = {get_owners, get_teams, get_fantasy_scoreboard, get_nfl_teams, test}
+module.exports = {get_scoring_period, get_owners, get_teams, get_rosters, get_fantasy_scoreboard, get_nfl_teams, get_inactive_starters, test}
 

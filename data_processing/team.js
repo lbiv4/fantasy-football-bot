@@ -30,11 +30,12 @@ class Team {
     /**
      * @constructor
      * @param {object} data Data from the `members` property of the  `mTeam` API response
+     * @param {object} roster Roster object from an element of the `rosters` array of the `mRoster` API response
      * @param {object} team Data from an element of the `teams` array of the `mTeam` API response
      * @property {Owner[]} owners Array of Owner class objects
      * Note that there are additonal properties from the `team` parameter that are added. Will fill in later
      */
-    constructor(owners, team) {
+    constructor(owners, roster, team) {
         //Add owners
         this.owners = [];
         let teamOwners = owners.filter(o => {
@@ -43,6 +44,7 @@ class Team {
         teamOwners.forEach(element => {
             this.owners.push(new Owner(element));
         });
+        this.roster = roster;
         //Add team data, omitting some large unnecessary properties
         const omittedKeys = ['owners','draftStrategy', 'valuesByStat']
         for(let key in team) {
@@ -63,7 +65,7 @@ class Team {
     get_owner_names() {
         let output = []
         this.owners.forEach(owner => {
-            output.add(owner.fullName());
+            output.push(owner.fullName());
         });
         return output.join(",");
     }

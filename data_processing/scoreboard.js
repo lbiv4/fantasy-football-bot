@@ -104,6 +104,18 @@ class NFLTeams {
         this.proTeams = scoreboardData.proTeams;
     }
 
+    get_team_by_player(player) {
+        let teams = this.proTeams.filter(team => {
+            return team.id === player.proTeamId;
+        });
+        if(teams.length > 0) {
+            return teams[0];
+        } else {
+            console.log("Cannot find team for player " + player.fullName);
+            return null;
+        }
+    }
+
     /**
      * Method to get a Date object representing the time of the matchup for the input team
      * @param {(string|number)} teamIdentifier String or numeric id corresponding to input team

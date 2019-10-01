@@ -9,10 +9,10 @@ bot.on('ready', function (evt) {
     console.log('Ready')
 });
 bot.on('message', msg => {
-    //console.log(msg);
+    console.log(msg.author)
     if(!msg.author.bot && msg.isMentioned(config.bot_id)) {
+        let currentYear = new Date().getFullYear();
         const tokens = msg.cleanContent.replace(/\s+/g, " ").split(" ");
-        console.log(tokens)
         if(tokens[1].toLowerCase() == "help") {
             let message;
             let messageTimeBeforeDelete = 30000;
@@ -37,6 +37,55 @@ bot.on('message', msg => {
                     .then(sent => {
                         sent.delete(messageTimeBeforeDelete);
                     })
+        } else if (tokens[1].toLowerCase() == "injury_warning") {
+            if(tokens[2].toLowerCase() == "start") {
+                let hours = 1;
+                if(tokens.length >= 4 && !Number.isNaN(Number(tokens[3]))) {
+                    hours = Number(tokens[3]); //Get hours from third token or default
+                }
+                let id = bot.setInterval (async () => {
+                    let currentWeek = await api.get_scoring_period(currentYear)
+                    let inactiveData = await api.get_inactive_starters(currentYear, currentWeek);
+                    inactiveData.forEach(team => {
+                        const teamInfo = team.team.get_display_info();
+                        let playerNames = "";
+                        let playerStatuses = ""
+                        team.inactivePlayers.forEach(plr => {
+                            playerNames += `${plr.fullName}\n`
+                            if(plr.is_injured()) {
+                                playerStatuses += `${plr.injuryStatus}\n`
+                            } else {
+                                playerStatuses += `BYE WEEK\n`
+                            }
+                        })
+                        const output = {
+                            color: 0xff8700,
+                            title: `INJURED STARTERS WARNING - ${teamInfo.teamName}`,
+                            thumbnail: {
+                                url: teamInfo.logo,
+                            },
+                            fields: [
+                                {
+                                    name: "Player Names",
+                                    value: playerNames,
+                                    inline: true,
+                                },
+                                {
+                                    name: "Status",
+                                    value: playerStatuses,
+                                    inline: true,
+                                }
+                            ]
+                        };
+                        msg.channel.send({embed: output}).then(sent => {
+                            sent.delete(60 * 60 * 1000 * hours);
+                        })
+                    })
+                }, 60 * 60 * 1000 * hours);
+                console.log(id)
+            } else if(tokens[2].toLowerCase() == "stop") {
+
+            }
         } else if(tokens[1].toLowerCase() == "scoreboard") {
             let week = null;
             let searchTerm = null;
@@ -49,7 +98,7 @@ bot.on('message', msg => {
             }
             console.log(`${week} ${typeof week}`)
             console.log(`${searchTerm} ${typeof searchTerm}`)
-            api.get_scoreboard(2019, week)
+            api.get_fantasy_scoreboard(currentYear, week)
                 .then(sb => {
                     let data = sb.get_score_data(searchTerm)
                     let winningUrl = data[0].score == data[1].score ? "" : data[0].score > data[1].score ? data[0].logo : data[1].logo

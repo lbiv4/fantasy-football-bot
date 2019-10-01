@@ -13,27 +13,27 @@ const INJURY_STATUS_TYPES = [ "ACTIVE",
                         "BEREAVEMENT",
                         "PATERNITY",
                         "SUSPENSION"]
+const PLAYER_SLOT_IDS = {
+    0: "QB",
+    2: "RB",
+    3: "RB/WR",
+    4: "WR",
+    6: "TE",
+    16: "D/ST",
+    17: "K",
+    20: "BE",
+    21: "IR",
+    23: "FLEX"
+}
 
 const slotIdToPos = (slotId) => {
-    const map = {
-        0: "QB",
-        2: "RB",
-        3: "RB/WR",
-        4: "WR",
-        6: "TE",
-        16: "D/ST",
-        17: "K",
-        20: "BE",
-        21: "IR",
-        23: "FLEX"
-    }
-    return map[slotId];
+    return PLAYER_SLOT_IDS[slotId];
 }
 
 class PlayerBase {
     constructor(playerData) {
         this.active =  playerData.active;
-        this.defaultPositionId = playerData.eligibleSlots;
+        this.defaultPositionId = playerData.defaultPositionId;
         this.eligibleSlots = playerData.eligibleSlots;
         this.firstName = playerData.firstName;
         this.fullName = playerData.fullName;
@@ -98,4 +98,4 @@ class Roster {
     
 } 
 
-module.exports = {Player, Roster}
+module.exports = {Player, Roster, INJURY_STATUS_TYPES, PLAYER_SLOT_IDS}

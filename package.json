@@ -4,7 +4,7 @@
   "description": "Slackbot for ESPN fantasy football",
   "main": "main.js",
   "scripts": {
-    "test": "npm test"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",

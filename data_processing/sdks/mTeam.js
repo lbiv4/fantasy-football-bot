@@ -119,119 +119,61 @@ class LeagueStatus {
 }
 
 class Team {
+    /**
+     * @constructor
+     * @property {string} abbrev String representing 4-character team abbreviation
+     * @property {number} currentProjectedRank Integer representing ESPN's current internal ranking of fantasy team in league
+     * @property {number} divisionId Integer representing identifier for team's division
+     * @property {number} draftDayProjectedRank Integer representing ESPN's initial internal ranking of fantasy team in league
+     * @property {TeamDraftStrategy} draftStrategy Object representing team's strategy/evaluations of players for draft
+     * @property {number} id Integer id of team in the league
+     * @property {boolean} isActive Boolean indicating if team is active in the league
+     * @property {string} location String representing first part of team name, (e.g. "Baltimore" for "Baltimore Ravens")
+     * @property {string} logo String representing a url to the image used in the team profile
+     * @property {string} logoType String corresponding to a value representing how image was added //TODO find out values
+     * @property {string} nickname String representing second part of team name, (e.g. "Ravens" for "Baltimore Ravens")
+     * @property {string[]} owners Array of string representing ids for each owner of the team (ids are styled like "{uuid}")
+     * @property {number} draftDayProjectedRank Integer representing ESPN's initial internal ranking of fantasy team in league
+     * @property {number} playoffSeed Integer representing playoff seed
+     * @property {number} points Number representing points for on the season
+     * @property {number} pointsAdjusted Number //TODO figure out purporse?
+     * @property {number} pointsDelta Number //TODO figure out purporse?
+     * @property {string} primaryOwner String containing uuid of primary owner, styled lik "{uuid}"
+     * @property {number} rankCalculatedFinal Integer representing team's calculated final ranking at end of season or 0 if season not over
+     * @property {number} rankFinal Integer representing team's final ranking at end of season or 0 if season not over
+     * @property {TeamRecord} record TeamRecord object holding data on team's record
+     * @property {object} tradeBlock Object //TODO figure out structure
+     * @property {TransactionCounter} transactionCounter TransactionCounter object tracking team transactions
+     * @property {object} valuesByStat Object mapping a number (representing some scoring value) to a number of points //TODO find mapping, turn into object
+     * @property {number} waiverRank Number representing priority in league waivers
+     */
     constructor() {
         this.abbrev = "";
-        this.currentProjectedRank: number
-        this.divisionId: number
-        this.draftDayProjectedRank: number
+        this.currentProjectedRank = 1;
+        this.divisionId = 0;
+        this.draftDayProjectedRank = 1;
         this.draftStrategy = new TeamDraftStrategy();           
-        this.id: number
-        this.isActive: boolean
-        this.location: string
-        this.logo: string
-        this.logoType: string
-        this.nickname: string
-        this.owners: array
-                    ArrayObj: string
-                playoffSeed: number
-                points: number
-                pointsAdjusted: number
-                pointsDelta: number
-                primaryOwner: string
-                rankCalculatedFinal: number
-                rankFinal: number
-                record: object
-                    away: object
-                        gamesBack: number
-                        losses: number
-                        percentage: number
-                        pointsAgainst: number
-                        pointsFor: number
-                        streakLength: number
-                        streakType: string
-                        ties: number
-                        wins: number
-                    division: object
-                        gamesBack: number
-                        losses: number
-                        percentage: number
-                        pointsAgainst: number
-                        pointsFor: number
-                        streakLength: number
-                        streakType: string
-                        ties: number
-                        wins: number
-                    home: object
-                        gamesBack: number
-                        losses: number
-                        percentage: number
-                        pointsAgainst: number
-                        pointsFor: number
-                        streakLength: number
-                        streakType: string
-                        ties: number
-                        wins: number
-                    overall: object
-                        gamesBack: number
-                        losses: number
-                        percentage: number
-                        pointsAgainst: number
-                        pointsFor: number
-                        streakLength: number
-                        streakType: string
-                        ties: number
-                        wins: number
-                tradeBlock: object
-                transactionCounter: object
-                    acquisitionBudgetSpent: number
-                    acquisitions: number
-                    drops: number
-                    matchupAcquisitionTotals: object
-                        2: number
-                    misc: number
-                    moveToActive: number
-                    moveToIR: number
-                    paid: number
-                    teamCharges: number
-                    trades: number
-                valuesByStat: object
-                    4: number
-                    5: number
-                    19: number
-                    20: number
-                    24: number
-                    25: number
-                    26: number
-                    42: number
-                    43: number
-                    44: number
-                    63: number
-                    72: number
-                    74: number
-                    77: number
-                    80: number
-                    85: number
-                    86: number
-                    88: number
-                    89: number
-                    90: number
-                    91: number
-                    92: number
-                    93: number
-                    95: number
-                    96: number
-                    97: number
-                    98: number
-                    99: number
-                    101: number
-                    102: number
-                    103: number
-                    104: number
-                    122: number
-                    123: number
-                    124: number
-                    125: number
-                waiverRank: number
+        this.id = 0;
+        this.isActive = true;
+        this.location = "";
+        this.logo = "";
+        this.logoType = "";
+        this.nickname = "";
+        this.owners = [];
+
+        this.playoffSeed = 1;
+        this.points = 0;
+        this.pointsAdjusted = 0;
+        this.pointsDelta = 0;
+        this.primaryOwner = "";
+        this.rankCalculatedFinal = 0;
+        this.rankFinal = 0;
+        this.record = new TeamRecord();
+        this.tradeBlock = {}; //TODO design later
+        this.transactionCounter = new TransactionCounter();
+        //TODO turn into proper object
+        this.valuesByStat = {}
+        this.waiverRank = 1;
     }
 }
 
@@ -258,6 +200,78 @@ class PlayerDraftStrategy {
     constructor() {
         this.auctionValue = 0;
         this.playerId = 0;
+    }
+}
+
+class TeamRecord {
+    /**
+     * @constructor
+     * @property {ResultsRecord} away ResultsRecord object representing team's record in away matchups
+     * @property {ResultsRecord} division ResultsRecord object representing team's record in home matchups
+     * @property {ResultsRecord} home ResultsRecord object representing team's record in dvision matchups
+     * @property {ResultsRecord} overall ResultsRecord object representing team's record in all matchups
+     */
+    constructor() {
+        this.away = new ResultsRecord();
+        this.division = new ResultsRecord();
+        this.home = new ResultsRecord();
+        this.overall = new ResultsRecord();
+    }
+}
+
+class ResultsRecord {
+    /**
+     * @constructor
+     * @property {number} gamesBack Integer representing number of games back from leader
+     * @property {number} losses Integer representing number of losses
+     * @property {number} percentage Number representing the win percentage
+     * @property {number} pointsAgainst Number representing number of points for
+     * @property {number} porntsFor Number representing number of points against
+     * @property {number} streakLength Integer representing number of games in the current streak
+     * @property {string} streakType String representing a type of win streak a team is on
+     * @property {number} ties Integer representing number of ties
+     * @property {number} wins Integer representing number of wins
+
+     */
+    constructor() {
+        this.gamesBack = 0;
+        this.losses = 0;
+        this.percentage = 0.0;
+        this.pointsAgainst =  0.0;
+        this.pointsFor = 0.0;
+        this.streakLength = 0;
+        this.streakType = "";
+        this.ties = 0;
+        this.wins = 0;
+    }
+}
+
+class TransactionCounter {
+    /**
+     * @constructor
+     * @property {number} acquisitionBudgetSpent Number representing amount of acquisition budget spent on free agents
+     * @property {number} acquisitions Number of acquisitions made
+     * @property {number} drops Number of times players were dropped
+     * @property {object} matchupAcquisitionTotals Object mapping acquisition types to a count? //TODO find out more
+     * @property {number} misc Number of miscellaneous actions
+     * @property {number} moveToActive Number of times players were activated from IR? //TODO: check
+     * @property {number} moveToIR Number of times players were moved to IR
+     * @property {number} paid Number //TODO: find out
+     * @property {number} teamCharges Number //TODO: find out
+     * @property {number} trades Number of trades completed
+
+     */
+    constructor() {
+        this.acquisitionBudgetSpent = 0;
+        this.acquisitions = 0;
+        this.drops = 0;
+        this.matchupAcquisitionTotals = {};
+        this.misc = 0;
+        this.moveToActive = 0;
+        this.moveToIR = 0;
+        this.paid = 0;
+        this.teamCharges = 0;
+        this.trades = 0;
     }
 }
 

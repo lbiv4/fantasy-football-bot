@@ -2,6 +2,7 @@ const config = require('../config/config.json');
 const axios = require('axios');
 const Owner = require('./team.js').Owner;
 const Team = require('./team.js').Team;
+const Team = require('./team.js').TeamRecord;
 const FantasyScoreboard = require('./scoreboard.js').FantasyScoreboard;
 const NFLTeams = require('./scoreboard.js').NFLTeams;
 const Roster = require('./players.js').Roster;
@@ -254,6 +255,21 @@ const get_previous_seasons = async () => {
         view: views.join(","),
         seasonId: year
     }
+    const output = await get_data(uri, null, data);
+    if (!output) {
+        console.log("Cannot find team data for year " + year)
+        return null;
+    } else {
+        return output.status.previousSeasons;
+    }
+}
+
+/**
+ * Method to return an array of previous seasons in which the league has been active
+ */
+const get_owner_records = async () => {
+    const currentYear = new Date().getFullYear();
+        
     const output = await get_data(uri, null, data);
     if (!output) {
         console.log("Cannot find team data for year " + year)

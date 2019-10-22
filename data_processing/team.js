@@ -103,4 +103,46 @@ class Team {
     }
 }
 
-module.exports = {Owner, Team}
+class TeamRecord {
+    /**
+     * @constructor
+     * @property {ResultsRecord} away ResultsRecord object representing team's record in away matchups
+     * @property {ResultsRecord} division ResultsRecord object representing team's record in home matchups
+     * @property {ResultsRecord} home ResultsRecord object representing team's record in dvision matchups
+     * @property {ResultsRecord} overall ResultsRecord object representing team's record in all matchups
+     */
+    constructor() {
+        this.away = new ResultsRecord();
+        this.division = new ResultsRecord();
+        this.home = new ResultsRecord();
+        this.overall = new ResultsRecord();
+    }
+}
+
+class ResultsRecord {
+    /**
+     * @constructor
+     * @property {number} gamesBack Integer representing number of games back from leader
+     * @property {number} losses Integer representing number of losses
+     * @property {number} percentage Number representing the win percentage
+     * @property {number} pointsAgainst Number representing number of points for
+     * @property {number} porntsFor Number representing number of points against
+     * @property {number} streakLength Integer representing number of games in the current streak
+     * @property {string} streakType String representing a type of win streak a team is on
+     * @property {number} ties Integer representing number of ties
+     * @property {number} wins Integer representing number of wins
+     */
+    constructor() {
+        this.gamesBack = 0;
+        this.losses = 0;
+        this.percentage = 0.0;
+        this.pointsAgainst =  0.0;
+        this.pointsFor = 0.0;
+        this.streakLength = 0;
+        this.streakType = "";
+        this.ties = 0;
+        this.wins = 0;
+    }
+}
+
+module.exports = {Owner, Team, TeamRecord, ResultsRecord}

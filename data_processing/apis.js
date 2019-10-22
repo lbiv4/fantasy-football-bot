@@ -2,7 +2,7 @@ const config = require('../config/config.json');
 const axios = require('axios');
 const Owner = require('./team.js').Owner;
 const Team = require('./team.js').Team;
-const Team = require('./team.js').TeamRecord;
+const Record = require('./team.js').TeamRecord;
 const FantasyScoreboard = require('./scoreboard.js').FantasyScoreboard;
 const NFLTeams = require('./scoreboard.js').NFLTeams;
 const Roster = require('./players.js').Roster;
@@ -12,7 +12,7 @@ const Roster = require('./players.js').Roster;
  * @param {number} year Year
  */
 const get_historical_url = (year) => {
-    return `https://fantasy.espn.com/apis/v3/games/ffl/seasons/${year}`
+    return `https://fantasy.espn.com/apis/v3/games/ffl/leagueHistory/${config.league_id}`
 }
 
 /**
@@ -248,7 +248,6 @@ const get_inactive_starters = async (year, week) => {
  */
 const get_previous_seasons = async () => {
     const year = new Date().getFullYear();
-    console.log(year);
     const uri = `https://fantasy.espn.com/apis/v3/games/ffl/seasons/${year}/segments/0/leagues/${config.league_id}`
     const views = ["mTeam"]
     const data = {
@@ -268,15 +267,46 @@ const get_previous_seasons = async () => {
  * Method to return an array of previous seasons in which the league has been active
  */
 const get_owner_records = async () => {
-    const currentYear = new Date().getFullYear();
-        
-    const output = await get_data(uri, null, data);
-    if (!output) {
-        console.log("Cannot find team data for year " + year)
+    let records = {};    
+    let historicalYears = await get_previous_seasons();
+    if(historicalYears == null) {
         return null;
-    } else {
-        return output.status.previousSeasons;
     }
+    //historicalYears.push(new Date().getFullYear());
+    await Promise.all(historicalYears.map(async (year) => {
+        let apiData = {
+            view: "mTeam",
+            seasonId: year
+        }
+        const output = await get_data(get_historical_url(year), null, apiData);
+        if(output != null) {
+            output[0].members.forEach(owner => {
+                //Check if owner has data - if not initialize
+                if(!records.hasOwnProperty(owner.id)) {
+                    records[owner.id] = {
+                        owner: new Owner(owner),
+                        cumulative: new Record().overall
+                    };
+                }
+            });
+            //Loop through all teams of the year
+            output[0].teams.forEach(team => {
+                let cumulativeStats = ['wins', 'ties', 'losses', 'pointsFor', 'pointsAgainst'];
+                let teamRecord = new Record();
+                Object.assign(teamRecord, team.record)
+                //For each owner on team, add key/value pair for year and record to that owner
+                team.owners.forEach(teamOwnerId => {
+                    records[teamOwnerId][year] = teamRecord;
+                    //Also increment cumulative values accordingly
+                    cumulativeStats.forEach(key => {
+                        records[teamOwnerId]['cumulative'][key] += teamRecord.overall[key];
+                    });
+                })
+            }) 
+            //console.log(records)    
+        }
+    }))
+    return records;
 }
 
 
@@ -288,7 +318,7 @@ const test = async (year) => {
     const views = ["mTeam"]
     const data = {
         view: views.join(","),
-        seasonId: year
+        seasonId: `2012`
     }
     const output = await get_data(uri, null, data);
     if (!output) {
@@ -332,6 +362,7 @@ module.exports = {
     get_nfl_teams, 
     get_inactive_starters, 
     get_previous_seasons,
+    get_owner_records,
     test
 }
 

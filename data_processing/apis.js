@@ -6,6 +6,13 @@ const FantasyScoreboard = require('./scoreboard.js').FantasyScoreboard;
 const NFLTeams = require('./scoreboard.js').NFLTeams;
 const Roster = require('./players.js').Roster;
 
+/**
+ * Method to provide the API url for historical data beyond two years old. 
+ * @param {number} year Year
+ */
+const get_historical_url = (year) => {
+    return `https://fantasy.espn.com/apis/v3/games/ffl/seasons/${year}`
+}
 
 /**
  * Method to create cookies based on passed in key-value pairs and league privacy
@@ -77,7 +84,8 @@ const get_scoring_period = async (year) => {
     const uri = `https://fantasy.espn.com/apis/v3/games/ffl/seasons/${year}/segments/0/leagues/${config.league_id}`
     const views = ["mTeam"]
     const data = {
-        view: views.join(",")
+        view: views.join(","),
+        seasonId: year
     }
     const output = await get_data(uri, null, data);
     if (!output) {
@@ -97,7 +105,8 @@ const get_owners = async (year) => {
     const uri = `https://fantasy.espn.com/apis/v3/games/ffl/seasons/${year}/segments/0/leagues/${config.league_id}`
     const views = ["mTeam"]
     const data = {
-        view: views.join(",")
+        view: views.join(","),
+        seasonId: year
     }
     const output = await get_data(uri, null, data);
     if (!output) {
@@ -121,7 +130,8 @@ const get_rosters = async (year) => {
     const uri = `https://fantasy.espn.com/apis/v3/games/ffl/seasons/${year}/segments/0/leagues/${config.league_id}`
     const views = ["mRoster"]
     const data = {
-        view: views.join(",")
+        view: views.join(","),
+        seasonId: year
     }
     const output = await get_data(uri, null, data);
     if (!output) {
@@ -145,7 +155,8 @@ const get_teams = async (year) => {
     const uri = `https://fantasy.espn.com/apis/v3/games/ffl/seasons/${year}/segments/0/leagues/${config.league_id}`
     const views = ["mTeam"]
     const data = {
-        view: views.join(",")
+        view: views.join(","),
+        seasonId: year
     }
     const output = await get_data(uri, null, data);
     if (!output) {
@@ -170,7 +181,8 @@ const get_fantasy_scoreboard = async (year, week) => {
     const uri = `https://fantasy.espn.com/apis/v3/games/ffl/seasons/${year}/segments/0/leagues/${config.league_id}`
     const views = ["mMatchupScore"]
     const data = {
-        view: views.join(",")
+        view: views.join(","),
+        seasonId: year
     }
     const output = await get_data(uri, null, data);
     const scoringPeriod = week || output.scoringPeriodId;
@@ -190,7 +202,8 @@ const get_nfl_teams = async (year) => {
     const uri = `https://fantasy.espn.com/apis/v3/games/ffl/seasons/${year}`
     const views = ["proTeamSchedules_wl"]
     const data = {
-        view: views.join(",")
+        view: views.join(","),
+        seasonId: year
     }
     const output = await get_data(uri, null, data);
     if (!output) {
@@ -229,15 +242,37 @@ const get_inactive_starters = async (year, week) => {
     return output;
 }
 
+/**
+ * Method to return an array of previous seasons in which the league has been active
+ */
+const get_previous_seasons = async () => {
+    const year = new Date().getFullYear();
+    console.log(year);
+    const uri = `https://fantasy.espn.com/apis/v3/games/ffl/seasons/${year}/segments/0/leagues/${config.league_id}`
+    const views = ["mTeam"]
+    const data = {
+        view: views.join(","),
+        seasonId: year
+    }
+    const output = await get_data(uri, null, data);
+    if (!output) {
+        console.log("Cannot find team data for year " + year)
+        return null;
+    } else {
+        return output.status.previousSeasons;
+    }
+}
+
 
 
 //Test method not for use
 const test = async (year) => {
-    const uri = `https://fantasy.espn.com/apis/v3/games/ffl/seasons/${year}/segments/0/leagues/${config.league_id}`
+    const uri = `https://fantasy.espn.com/apis/v3/games/ffl/leagueHistory/${config.league_id}`
     //const views = ["modular", "mNav", "mMatchupScore", "mRoster", "mScoreboard", "mSettings", "mTopPerformers", "mTeam", "mPositionalRatings", "kona_player_info", "proTeamSchedules_wl"];
     const views = ["mTeam"]
     const data = {
-        view: views.join(",")
+        view: views.join(","),
+        seasonId: year
     }
     const output = await get_data(uri, null, data);
     if (!output) {
@@ -272,5 +307,15 @@ const keyTypes = (val, name, count) => {
     }
 }
 
-module.exports = {get_scoring_period, get_owners, get_teams, get_rosters, get_fantasy_scoreboard, get_nfl_teams, get_inactive_starters, test}
+module.exports = {
+    get_scoring_period, 
+    get_owners, 
+    get_teams, 
+    get_rosters, 
+    get_fantasy_scoreboard, 
+    get_nfl_teams, 
+    get_inactive_starters, 
+    get_previous_seasons,
+    test
+}
 
